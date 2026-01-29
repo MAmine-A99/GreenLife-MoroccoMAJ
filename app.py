@@ -41,7 +41,9 @@ st.markdown("<p style='text-align:center;color:#6B8E23'>AI-powered sustainable a
 if "marker" not in st.session_state:
     st.session_state.marker = {"lat": 31.6295, "lon": -7.9811}  # Marrakech
 if "weather" not in st.session_state:
-    st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
+    st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 0}
+if "city_name" not in st.session_state:
+    st.session_state.city_name = "Unknown"
 
 # =====================================================
 # SIDEBAR – REGION SELECTION
@@ -53,7 +55,6 @@ lon = st.sidebar.number_input("Longitude", -17.0, -1.0, st.session_state.marker[
 
 if st.sidebar.button("Set Region"):
     st.session_state.marker = {"lat": lat, "lon": lon}
-    st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
 
 lat, lon = st.session_state.marker["lat"], st.session_state.marker["lon"]
 
@@ -73,42 +74,34 @@ fig_map.update_layout(
 st.plotly_chart(fig_map, use_container_width=True)
 
 # =====================================================
-# REVERSE GEOCODING
-# =====================================================
-API_KEY = "be87b67bc35d53a2b6db5abe4f569460"
-city_name = "Unknown"
-
-try:
-    geo = requests.get(
-        f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={API_KEY}",
-        timeout=5
-    ).json()
-    if geo:
-        city_name = geo[0]["name"]
-except:
-    pass
-
-st.markdown(f"### 📌 Selected Area: **{city_name}** (Lat: {lat:.2f}, Lon: {lon:.2f})")
-
-# =====================================================
 # WEATHER FETCH – Visual Crossing
 # =====================================================
-VC_API_KEY = "YOUR_VISUAL_CROSSING_KEY"  # ← replace with your Visual Crossing API key
+VC_API_KEY = "YOUR_VISUAL_CROSSING_KEY"  # ← replace with your key
 
 if st.sidebar.button("🔄 Refresh Weather"):
     try:
-        # Fetch current weather from Visual Crossing
         url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{lat},{lon}?unitGroup=metric&key={VC_API_KEY}&include=current"
         weather_vc = requests.get(url, timeout=10).json()
-
         current = weather_vc["currentConditions"]
+
         st.session_state.weather = {
             "temp": current["temp"],
             "humidity": current["humidity"],
-            "rain": current.get("precip", 0)  # precipitation in mm
+            "rain": current.get("precip", 0)
         }
+
+        # Update city name from Visual Crossing
+        st.session_state.city_name = weather_vc.get("resolvedAddress", "Unknown").split(",")[0]
+
     except Exception as e:
         st.warning(f"Could not fetch weather, using last saved/demo data. Error: {e}")
+
+temp = st.session_state.weather["temp"]
+humidity = st.session_state.weather["humidity"]
+rain = st.session_state.weather["rain"]
+city_name = st.session_state.city_name
+
+st.markdown(f"### 📌 Selected Area: **{city_name}** (Lat: {lat:.2f}, Lon: {lon:.2f})")
 
 # =====================================================
 # NDVI (SIMULATED)
@@ -219,7 +212,7 @@ if st.button("📄 Export PDF Report"):
 # =====================================================
 # QR CODE FOR APP
 # =====================================================
-APP_URL = "https://agrisense-moroccomaj-nngj5uc898kzkk7ae4j9go.streamlit.app/"  # replace with your actual URL
+APP_URL = "https://agrisense-moroccomaj-nngj5uc898kzkk7ae4j9go.streamlit.app/"
 qr = qrcode.QRCode(version=1, box_size=12, border=8)
 qr.add_data(APP_URL)
 qr.make(fit=True)
@@ -235,5 +228,3 @@ st.image(buf_qr, width=180)
 # FOOTER
 # =====================================================
 st.markdown("<p style='text-align:center;color:#6B8E23'>Powered by : Mohamed Amine Jaghouti</p>", unsafe_allow_html=True)
-
-
