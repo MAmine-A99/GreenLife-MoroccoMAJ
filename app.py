@@ -76,32 +76,42 @@ st.plotly_chart(fig_map, use_container_width=True)
 # =====================================================
 # WEATHER FETCH – Visual Crossing
 # =====================================================
-VC_API_KEY = "YOUR_VISUAL_CROSSING_KEY"  # ← replace with your key
+VC_API_KEY = "YOUR_VISUAL_CROSSING_KEY"
 
 if st.sidebar.button("🔄 Refresh Weather"):
     try:
-        url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{lat},{lon}?unitGroup=metric&key={VC_API_KEY}&include=current"
-        weather_vc = requests.get(url, timeout=10).json()
-        current = weather_vc["currentConditions"]
+        # Format lat/lon properly
+        location = f"{lat},{lon}"
+
+        url = (
+            f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
+            f"{location}?unitGroup=metric&key={VC_API_KEY}&include=current"
+        )
+
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # <-- ensures HTTP errors raise exceptions
+
+        weather_vc = response.json()  # <-- parse JSON safely
+        current = weather_vc.get("currentConditions", {})
 
         st.session_state.weather = {
-            "temp": current["temp"],
-            "humidity": current["humidity"],
+            "temp": current.get("temp", 0),
+            "humidity": current.get("humidity", 0),
             "rain": current.get("precip", 0)
         }
 
-        # Update city name from Visual Crossing
+        # Update city name
         st.session_state.city_name = weather_vc.get("resolvedAddress", "Unknown").split(",")[0]
 
+    except requests.exceptions.HTTPError as http_err:
+        st.warning(f"HTTP error: {http_err}")
+    except requests.exceptions.ConnectionError:
+        st.warning("Connection error. Check your internet.")
+    except ValueError:
+        st.warning("Received invalid response from Visual Crossing API.")
     except Exception as e:
         st.warning(f"Could not fetch weather, using last saved/demo data. Error: {e}")
 
-temp = st.session_state.weather["temp"]
-humidity = st.session_state.weather["humidity"]
-rain = st.session_state.weather["rain"]
-city_name = st.session_state.city_name
-
-st.markdown(f"### 📌 Selected Area: **{city_name}** (Lat: {lat:.2f}, Lon: {lon:.2f})")
 
 # =====================================================
 # NDVI (SIMULATED)
@@ -228,3 +238,4 @@ st.image(buf_qr, width=180)
 # FOOTER
 # =====================================================
 st.markdown("<p style='text-align:center;color:#6B8E23'>Powered by : Mohamed Amine Jaghouti</p>", unsafe_allow_html=True)
+
