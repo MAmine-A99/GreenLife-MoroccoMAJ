@@ -4,208 +4,235 @@ import numpy as np
 import requests
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
-import plotly.express as px
 import plotly.graph_objects as go
 from io import BytesIO
 from reportlab.pdfgen import canvas
+import qrcode
+from PIL import Image
 
-# -------------------------------
+# =====================================================
 # PAGE CONFIG & DESIGN
-# -------------------------------
+# =====================================================
 st.set_page_config(page_title="AgriSense Morocco", layout="wide", page_icon="🌱")
 
 st.markdown("""
 <style>
 .stButton>button {
-    border-radius: 15px;
+    border-radius: 14px;
     background-color:#D97706;
     color:white;
-    height:40px;
+    height:42px;
     width:100%;
-    margin-bottom:10px;
 }
-.stMetric {
-    border-radius: 15px;
-    box-shadow: 2px 2px 10px #ccc;
+.metric-card {
+    border-radius: 14px;
     padding: 15px;
-    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h1 style='text-align:center;color:#D97706'>🌱 AgriSense Morocco</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:#6B8E23'>AI-powered agriculture decision support system</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:#6B8E23'>AI-powered sustainable agriculture decision support</p>", unsafe_allow_html=True)
 
-# -------------------------------
-# REGION SELECTION
-# -------------------------------
-st.sidebar.header("Select Region (Morocco)")
+# =====================================================
+# SESSION STATE
+# =====================================================
+if "marker" not in st.session_state:
+    st.session_state.marker = {"lat": 31.6295, "lon": -7.9811}  # Marrakech
+if "weather" not in st.session_state:
+    st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
 
-if 'marker' not in st.session_state:
-    st.session_state['marker'] = {'lat':31.6295,'lon':-7.9811}  # Marrakech default
+# =====================================================
+# SIDEBAR – REGION SELECTION
+# =====================================================
+st.sidebar.header("📍 Select Region (Morocco)")
 
-lat_input = st.sidebar.number_input("Latitude", min_value=21.0, max_value=36.0, value=st.session_state['marker']['lat'])
-lon_input = st.sidebar.number_input("Longitude", min_value=-17.0, max_value=-1.0, value=st.session_state['marker']['lon'])
+lat = st.sidebar.number_input("Latitude", 21.0, 36.0, st.session_state.marker["lat"])
+lon = st.sidebar.number_input("Longitude", -17.0, -1.0, st.session_state.marker["lon"])
+
 if st.sidebar.button("Set Region"):
-    st.session_state['marker'] = {'lat':lat_input,'lon':lon_input}
+    st.session_state.marker = {"lat": lat, "lon": lon}
+    st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
 
-lat, lon = st.session_state['marker']['lat'], st.session_state['marker']['lon']
+lat, lon = st.session_state.marker["lat"], st.session_state.marker["lon"]
 
-# -------------------------------
-# MAP DISPLAY
-# -------------------------------
-map_df = pd.DataFrame([st.session_state['marker']])
-fig_map = px.scatter_map(
-    map_df,
-    lat="lat",
-    lon="lon",
-    zoom=5,
-    height=400,
+# =====================================================
+# MAP
+# =====================================================
+map_df = pd.DataFrame([{"lat": lat, "lon": lon}])
+fig_map = go.Figure(go.Scattermapbox(
+    lat=map_df["lat"], lon=map_df["lon"], mode="markers",
+    marker=go.scattermapbox.Marker(size=14, color="#D97706"),
+    text=["Selected Region"]
+))
+fig_map.update_layout(
+    mapbox=dict(style="open-street-map", zoom=5, center=dict(lat=lat, lon=lon)),
+    margin=dict(l=0, r=0, t=0, b=0), height=400
 )
-fig_map.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":0,"l":0,"b":0})
-st.plotly_chart(fig_map, width='stretch')
+st.plotly_chart(fig_map, use_container_width=True)
 
-# -------------------------------
+# =====================================================
 # REVERSE GEOCODING
-# -------------------------------
+# =====================================================
 API_KEY = "be87b67bc35d53a2b6db5abe4f569460"
+city_name = "Unknown"
+
 try:
-    geo_url = f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={API_KEY}"
-    geo_resp = requests.get(geo_url, timeout=5).json()
-    city_name = geo_resp[0]['name'] if geo_resp else "Unknown"
+    geo = requests.get(
+        f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={API_KEY}",
+        timeout=5
+    ).json()
+    if geo:
+        city_name = geo[0]["name"]
 except:
-    city_name = "Unknown"
+    pass
 
-st.markdown(f"**Selected Region / City:** {city_name} (Lat: {lat:.2f}, Lon: {lon:.2f})")
+st.markdown(f"### 📌 Selected Area: **{city_name}** (Lat: {lat:.2f}, Lon: {lon:.2f})")
 
-# -------------------------------
+# =====================================================
 # WEATHER FETCH
-# -------------------------------
-weather_url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-
-default_temp, default_humidity, default_rain = 25, 50, 0
-
-if st.sidebar.button("Refresh Weather") or 'weather_data' not in st.session_state:
+# =====================================================
+if st.sidebar.button("🔄 Refresh Weather"):
     try:
-        response = requests.get(weather_url, timeout=5)
-        data = response.json()
-        temp = data["main"]["temp"]
-        humidity = data["main"]["humidity"]
-        rain_data = data.get("rain", {})
-        if "1h" in rain_data:
-            rain = rain_data["1h"]
-        elif "3h" in rain_data:
-            rain = rain_data["3h"]/3
-        else:
-            rain = 0
-        st.session_state['weather_data'] = {"temp": temp, "humidity": humidity, "rain": rain}
+        weather = requests.get(
+            f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={API_KEY}",
+            timeout=5
+        ).json()
+        st.session_state.weather = {
+            "temp": weather["main"]["temp"],
+            "humidity": weather["main"]["humidity"],
+            "rain": weather.get("rain", {}).get("1h", np.random.uniform(0, 6))
+        }
     except:
-        st.warning("Could not fetch weather, using default demo data.")
-        temp, humidity, rain = default_temp, default_humidity, default_rain
-        st.session_state['weather_data'] = {"temp": temp, "humidity": humidity, "rain": rain}
-else:
-    temp = st.session_state['weather_data']['temp']
-    humidity = st.session_state['weather_data']['humidity']
-    rain = st.session_state['weather_data']['rain']
+        st.warning("Using demo weather data")
 
-# -------------------------------
-# SIMULATED NDVI
-# -------------------------------
-ndvi = np.random.uniform(0.3,0.7)
+temp = st.session_state.weather["temp"]
+humidity = st.session_state.weather["humidity"]
+rain = st.session_state.weather["rain"]
 
-# -------------------------------
+# =====================================================
+# NDVI (SIMULATED)
+# =====================================================
+ndvi = float(np.clip(np.random.normal(0.55, 0.1), 0.2, 0.85))
+
+# =====================================================
 # AI CROP PREDICTION
-# -------------------------------
-crops = ["wheat","olives","vegetables","tomatoes","citrus","almonds","grapes"]
-num_crops = len(crops)
+# =====================================================
+crops = ["wheat", "olives", "tomatoes", "citrus", "grapes", "almonds", "vegetables"]
+irrigation = ["low", "low", "high", "medium", "medium", "low", "high"]
 
-temperature_arr = np.linspace(temp-2, temp+2, num_crops)
-rainfall_arr = np.linspace(max(rain-20,0), rain+20, num_crops)
-ndvi_arr = np.linspace(ndvi-0.05, ndvi+0.05, num_crops)
-irrigation_levels = ["low","medium","high","medium","low","high","medium"]
-
-data = pd.DataFrame({
-    "temperature":temperature_arr,
-    "rainfall":rainfall_arr,
-    "ndvi":ndvi_arr,
-    "crop":crops,
-    "irrigation":irrigation_levels
+df = pd.DataFrame({
+    "temperature": np.linspace(temp-3, temp+3, len(crops)),
+    "rainfall": np.linspace(max(rain-10, 0), rain+10, len(crops)),
+    "ndvi": np.linspace(ndvi-0.05, ndvi+0.05, len(crops)),
+    "crop": crops,
+    "irrigation": irrigation
 })
 
-X = data[["temperature","rainfall","ndvi"]]
-y_crop = data["crop"]
-y_irrigation = data["irrigation"]
+X = df[["temperature", "rainfall", "ndvi"]]
+crop_enc = LabelEncoder()
+irr_enc = LabelEncoder()
+y_crop = crop_enc.fit_transform(df["crop"])
+y_irr = irr_enc.fit_transform(df["irrigation"])
 
-crop_encoder = LabelEncoder()
-irrigation_encoder = LabelEncoder()
-y_crop_encoded = crop_encoder.fit_transform(y_crop)
-y_irrigation_encoded = irrigation_encoder.fit_transform(y_irrigation)
+crop_model = RandomForestClassifier(200, random_state=42)
+irr_model = RandomForestClassifier(200, random_state=42)
+crop_model.fit(X, y_crop)
+irr_model.fit(X, y_irr)
 
-crop_model = RandomForestClassifier(n_estimators=100, random_state=42)
-irrigation_model = RandomForestClassifier(n_estimators=100, random_state=42)
-crop_model.fit(X,y_crop_encoded)
-irrigation_model.fit(X,y_irrigation_encoded)
-
-# Use DataFrame for prediction to avoid sklearn warnings
-X_input = pd.DataFrame([[temp, rain, ndvi]], columns=["temperature","rainfall","ndvi"])
-crop_pred = crop_model.predict(X_input)
-irrigation_pred = irrigation_model.predict(X_input)
-
-crop_result = crop_encoder.inverse_transform(crop_pred)[0]
-irrigation_result = irrigation_encoder.inverse_transform(irrigation_pred)[0]
-
-# -------------------------------
-# DASHBOARD CARDS
-# -------------------------------
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("🌡️ Temperature (°C)", temp)
-col2.metric("💧 Rainfall (mm)", rain)
-col3.metric("💦 Humidity (%)", humidity)
-col4.metric("📈 NDVI", f"{ndvi:.2f} (0–1, higher=healthier)")
-
-st.success(f"🌾 Recommended Crop: **{crop_result.capitalize()}**")
-st.info(f"💧 Irrigation Level: **{irrigation_result.capitalize()}**")
-
-# -------------------------------
-# CROP PROBABILITY CHART
-# -------------------------------
+X_input = pd.DataFrame([[temp, rain, ndvi]], columns=X.columns)
+crop_pred = crop_enc.inverse_transform(crop_model.predict(X_input))[0]
+irr_pred = irr_enc.inverse_transform(irr_model.predict(X_input))[0]
 probs = crop_model.predict_proba(X_input)[0]
-fig = go.Figure([go.Bar(x=crop_encoder.classes_, y=probs, marker_color=["#6B8E23","#D97706","#F5F5DC","#FFD700","#FFA500","#8B4513","#A0522D"])])
-fig.update_layout(title="Crop Suitability Probability", yaxis=dict(title="Probability"))
-st.plotly_chart(fig, width='stretch')
 
-# -------------------------------
-# WHAT-IF ANALYSIS
-# -------------------------------
-st.markdown("### 🔄 What-If Analysis: +20mm Rainfall")
-X_whatif = pd.DataFrame([[temp, rain+20, ndvi]], columns=["temperature","rainfall","ndvi"])
-crop_whatif = crop_encoder.inverse_transform(crop_model.predict(X_whatif))[0]
-irrigation_whatif = irrigation_encoder.inverse_transform(irrigation_model.predict(X_whatif))[0]
-st.markdown(f"If rainfall increases by 20mm:")
-st.markdown(f"- Crop: **{crop_whatif.capitalize()}**")
-st.markdown(f"- Irrigation: **{irrigation_whatif.capitalize()}**")
+# =====================================================
+# METRICS
+# =====================================================
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("🌡 Temperature", f"{temp:.1f} °C")
+c2.metric("🌧 Rainfall", f"{rain:.1f} mm")
+c3.metric("💧 Humidity", f"{humidity}%")
+c4.metric("🌿 NDVI", f"{ndvi:.2f}")
 
-# -------------------------------
-# EXPORT PDF
-# -------------------------------
+# =====================================================
+# RESULTS
+# =====================================================
+st.success(f"🌾 **Recommended Crop:** {crop_pred.capitalize()} ({probs.max()*100:.1f}%)")
+st.info(f"💦 **Irrigation Level:** {irr_pred.capitalize()}")
+
+# =====================================================
+# RISK ALERTS
+# =====================================================
+if rain < 5:
+    st.warning("⚠️ Drought risk detected")
+elif rain > 25:
+    st.warning("⚠️ Heavy rain risk")
+
+# =====================================================
+# SUSTAINABILITY INDEX
+# =====================================================
+sustainability = round((ndvi*0.5 + (1 - rain/40)*0.3 + 0.2)*10, 1)
+st.markdown(f"### ♻️ Sustainability Index: **{sustainability}/10**")
+st.caption("Higher score = climate-resilient & water-efficient farming")
+
+# =====================================================
+# CROP PROBABILITY CHART
+# =====================================================
+fig = go.Figure(go.Bar(x=crop_enc.classes_, y=probs, marker_color="#6B8E23"))
+fig.update_layout(title="Crop Suitability Probabilities")
+st.plotly_chart(fig, use_container_width=True)
+
+# =====================================================
+# PDF EXPORT
+# =====================================================
 def generate_pdf():
     buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=(595, 842))  # letter size
-    c.setFont("Helvetica-Bold",16)
-    c.drawString(50,750,f"AgriSense Morocco Report")
-    c.setFont("Helvetica",12)
-    c.drawString(50,720,f"Region: {city_name} (Lat: {lat:.2f}, Lon: {lon:.2f})")
-    c.drawString(50,700,f"Temperature: {temp} °C")
-    c.drawString(50,680,f"Rainfall: {rain} mm")
-    c.drawString(50,660,f"Humidity: {humidity} %")
-    c.drawString(50,640,f"NDVI: {ndvi:.2f}")
-    c.drawString(50,620,f"Recommended Crop: {crop_result.capitalize()}")
-    c.drawString(50,600,f"Irrigation Level: {irrigation_result.capitalize()}")
-    c.drawString(50,580,f"Prepared by: MOHAMED AMINE JAGHOUTI")
+    c = canvas.Canvas(buffer)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, 800, "AgriSense Morocco Report")
+    c.setFont("Helvetica", 12)
+    y = 760
+    for line in [
+        f"Region: {city_name}",
+        f"Temperature: {temp:.1f} °C",
+        f"Rainfall: {rain:.1f} mm",
+        f"Humidity: {humidity} %",
+        f"NDVI: {ndvi:.2f}",
+        f"Recommended Crop: {crop_pred.capitalize()}",
+        f"Sustainability Index: {sustainability}/10",
+        "Prepared by: MOHAMED AMINE JAGHOUTI"
+    ]:
+        c.drawString(50, y, line)
+        y -= 22
     c.save()
     buffer.seek(0)
     return buffer
 
 if st.button("📄 Export PDF Report"):
-    pdf_bytes = generate_pdf()
-    st.download_button("Download PDF", pdf_bytes, file_name=f"AgriSense_{city_name}_{lat}_{lon}.pdf", mime="application/pdf")
+    st.download_button(
+        "Download PDF",
+        generate_pdf(),
+        file_name=f"AgriSense_{city_name}.pdf",
+        mime="application/pdf"
+    )
+
+# =====================================================
+# QR CODE FOR APP
+# =====================================================
+APP_URL = "https://your-deployed-streamlit-url.streamlit.app"  # replace with your actual URL
+qr = qrcode.QRCode(version=1, box_size=8, border=4)
+qr.add_data(APP_URL)
+qr.make(fit=True)
+img_qr = qr.make_image(fill_color="black", back_color="white")
+buf_qr = BytesIO()
+img_qr.save(buf_qr)
+buf_qr.seek(0)
+
+st.markdown("### 📱 Scan to open AgriSense Morocco online")
+st.image(buf_qr, width=180)
+
+# =====================================================
+# FOOTER
+# =====================================================
+st.markdown("<p style='text-align:center;color:#6B8E23'>Powered by : Mohamed Amine Jaghouti</p>", unsafe_allow_html=True)
