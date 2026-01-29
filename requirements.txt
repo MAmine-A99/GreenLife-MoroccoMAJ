@@ -4,4 +4,6 @@ numpy
 requests
 scikit-learn
 plotly
+qrcode[pil]
+Pillow
 reportlab
