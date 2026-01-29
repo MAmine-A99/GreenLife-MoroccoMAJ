@@ -14,6 +14,7 @@ Provide accessible decision support for non-technical users
 
 Demonstrate real-world AI application in agriculture
 
+
 🧠 How It Works
 
 User selects a location in Morocco (map or coordinates)
@@ -24,6 +25,7 @@ Vegetation health is estimated using a simulated NDVI indicator
 
 A machine-learning model analyzes the data
 
+
 The app recommends:
 
 Best-suited crop
@@ -31,6 +33,7 @@ Best-suited crop
 Irrigation level
 
 Risk awareness through visual indicators
+
 
 🛠️ Technologies Used
 
@@ -48,6 +51,7 @@ OpenWeatherMap API – real-time weather data
 
 ReportLab – PDF export
 
+
 📊 Features
 
 Interactive map (Morocco-focused)
@@ -64,24 +68,29 @@ Downloadable PDF report
 
 Simple UI designed for accessibility
 
+
 🌍 Sustainability & Food Security
 
 AgriSense Morocco contributes to climate-smart agriculture, helping optimize resource use, reduce water waste, and improve crop resilience—supporting long-term sustainability and food security goals.
 
+
 🚀 How to Run Locally
 pip install -r requirements.txt
 streamlit run app.py
+
 
 🌐 Live Demo
 
 👉 (Streamlit Cloud URL goes here)
 Scan the QR code to access the app on mobile.
 
+
 📁 Project Structure
 AgriSense-Morocco/
 │── app.py
 │── requirements.txt
 │── README.md
+
 
 📚 References
 
@@ -90,6 +99,7 @@ Pettorelli, N. (2013). The Normalized Difference Vegetation Index. Oxford Univer
 Liakos, K. G., et al. (2018). Machine learning in agriculture. Computers and Electronics in Agriculture.
 
 Lobell, D. B., & Burke, M. B. (2010). Climate change and crop yield models. Agricultural and Forest Meteorology.
+
 
 👤 Author
 
