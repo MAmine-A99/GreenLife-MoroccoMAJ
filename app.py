@@ -100,7 +100,7 @@ def intro_page():
 
     st.markdown("---")
 
-    col_btn = st.columns(4)[3]
+    col_btn = st.columns(3)[1.5]
     with col_btn:
         if st.button("🚀 Let's explore it"):
             st.session_state.page = "dashboard"
@@ -269,5 +269,6 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
+
 
 
