@@ -65,8 +65,10 @@ def intro_page():
     with col1:
         st.markdown("### 🚜 About AgriSense")
         st.write("""
-        AgriSense Morocco is an **AI-powered platform** for smart, sustainable agriculture. 
-        It combines:
+        Since Morocco faces unpredictable weather, water scarcity, and crop management challenges, AgriSense Morocco provides a smart solution. 
+        By combining AI, real-time weather data, and satellite-based NDVI analysis, it helps farmers and cooperatives choose the best crops, irrigation strategies, and sustainable practices. 
+        Our vision is to enable data-driven agriculture that increases productivity, conserves resources, and builds a resilient farming ecosystem across Morocco.
+
         - **Climate & weather analysis**  
         - **Geospatial mapping & NDVI vegetation monitoring**  
         - **Machine learning crop & irrigation recommendations**
@@ -245,3 +247,4 @@ if st.session_state.page=="intro":
     intro_page()
 else:
     dashboard_page()
+
