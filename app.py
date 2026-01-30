@@ -60,12 +60,14 @@ if "weather" not in st.session_state:
 def intro_page():
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Hero title + subtitle
+    # Hero title + subtitle + name/email like Apple keynote style
     st.markdown("""
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <h1 style='text-align:center; color:#D97706; font-size:50px;'>🌱 AgriSense Morocco</h1>
-        <h3 style='text-align:center; color:#6B8E23;'>AI-powered Sustainable Agriculture Decision Support</h3>
-        <p style='text-align:center; color:#6B8E23; font-size:16px;'>
+        <h1 style='text-align:center; color:#D97706; font-size:52px; font-weight:800;'>🌱 AgriSense Morocco</h1>
+        <h3 style='text-align:center; color:#6B8E23; font-size:22px; font-weight:500;'>
+        AI-powered Sustainable Agriculture Decision Support
+        </h3>
+        <p style='text-align:center; color:#555555; font-size:16px; margin-top:-10px;'>
         Powered by <b>Mohamed Amine Jaghouti</b> • <a href="mailto:Mohamedaminejaghouti@gmail.com">Mohamedaminejaghouti@gmail.com</a>
         </p>
     </div>
@@ -73,40 +75,50 @@ def intro_page():
     
     st.markdown("---")
     
+    # Main hero content with iPhone announcement vibe
     col1, col2 = st.columns([2,1])
     
     with col1:
-        st.markdown("### 🚜 About AgriSense")
-        st.write("""
-        Since Morocco faces unpredictable weather, water scarcity, and crop management challenges, 
-        AgriSense Morocco provides a smart solution. 
-        By combining AI, real-time weather data, and satellite-based NDVI analysis, it helps farmers 
-        and cooperatives choose the best crops, irrigation strategies, and sustainable practices.
+        st.markdown("<h2 style='color:#D97706;'>🚀 Revolutionizing Moroccan Agriculture</h2>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="font-size:18px; color:#333333;">
+        Agriculture in Morocco faces <b>climate change, water scarcity, and soil challenges</b>. 
+        <b>AgriSense Morocco</b> is an AI-powered decision support platform that helps farmers, agronomists, and policymakers make <b>informed, climate-resilient, and water-efficient decisions</b>.
+        </div>
+        """, unsafe_allow_html=True)
         
-        - **Climate & weather analysis**  
-        - **Geospatial mapping & NDVI vegetation monitoring**  
-        - **Machine learning crop & irrigation recommendations**
+        st.markdown("<h3 style='color:#6B8E23;'>💡 How it Works</h3>", unsafe_allow_html=True)
+        st.markdown("""
+        - Real-time weather monitoring & alerts for droughts or heavy rainfall 🌦  
+        - NDVI vegetation indices for crop health and soil monitoring 🌿  
+        - Machine learning models recommending optimal crops & irrigation levels 🤖  
+        - Sustainability assessment & shareable reports with PDFs and QR codes 📄📱
         """)
         
-        st.markdown("### 🎯 Vision")
-        st.write("Enable **data-driven agriculture in Morocco**, improving productivity while preserving natural resources.")
-        
+        st.markdown("<h3 style='color:#D97706;'>🎯 Vision</h3>", unsafe_allow_html=True)
+        st.markdown("""
+        Enable <b>data-driven agriculture across Morocco</b>, improving productivity, conserving water, and building resilient farming ecosystems.
+        """, unsafe_allow_html=True)
+    
     with col2:
-        st.markdown("### 📄 Project Documentation")
+        st.markdown("<h3 style='color:#6B8E23;'>📄 Project Documentation</h3>", unsafe_allow_html=True)
         st.markdown(
             "[📘 AgriSense Morocco – Project Overview (PDF)](https://drive.google.com/uc?export=download&id=1F8USlTvi2hP01RwpBTJNaTIczRovVlLU)",
             unsafe_allow_html=True
         )
+        st.image(
+            ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/640px-Apple_logo_black.svg.png"], 
+            width=120, caption="Inspired by Apple Keynote Design"
+        )
     
     st.markdown("---")
     
+    # CTA Button like keynote slide
     col_btn = st.columns([1,2,1])[1]
     with col_btn:
-        if st.button("🚀 Explore Dashboard"):
+        if st.button("🚀 Explore the Dashboard"):
             st.session_state.page = "dashboard"
             st.rerun()
-
-
 
 # =====================================================
 # DASHBOARD PAGE
@@ -259,4 +271,5 @@ if st.session_state.page=="intro":
     intro_page()
 else:
     dashboard_page()
+
 
