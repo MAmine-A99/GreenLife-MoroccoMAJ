@@ -60,11 +60,14 @@ if "weather" not in st.session_state:
 def intro_page():
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Hero title + subtitle + footer with email
+    # Hero title + subtitle
     st.markdown("""
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
         <h1 style='text-align:center; color:#D97706; font-size:50px;'>🌱 AgriSense Morocco</h1>
         <h3 style='text-align:center; color:#6B8E23;'>AI-powered Sustainable Agriculture Decision Support</h3>
+        <p style='text-align:center; color:#6B8E23; font-size:16px;'>
+        Powered by <b>Mohamed Amine Jaghouti</b> • <a href="mailto:Mohamedaminejaghouti@gmail.com">Mohamedaminejaghouti@gmail.com</a>
+        </p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -73,33 +76,27 @@ def intro_page():
     col1, col2 = st.columns([2,1])
     
     with col1:
-        st.markdown("""
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <h3>🚜 About AgriSense</h3>
-            <p>
-            Since Morocco faces unpredictable weather, water scarcity, and crop management challenges, 
-            <b>AgriSense Morocco</b> provides a smart solution. 
-            By combining AI, real-time weather data, and satellite-based NDVI analysis, it helps farmers 
-            and cooperatives choose the best crops, irrigation strategies, and sustainable practices.
-            </p>
-            <p><b>Key Features:</b><br>
-            - Climate & weather analysis<br>
-            - Geospatial mapping & NDVI vegetation monitoring<br>
-            - Machine learning crop & irrigation recommendations
-            </p>
-            <h3>🎯 Vision</h3>
-            <p>Enable <b>data-driven agriculture in Morocco</b>, improving productivity while preserving natural resources.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("### 🚜 About AgriSense")
+        st.write("""
+        Since Morocco faces unpredictable weather, water scarcity, and crop management challenges, 
+        AgriSense Morocco provides a smart solution. 
+        By combining AI, real-time weather data, and satellite-based NDVI analysis, it helps farmers 
+        and cooperatives choose the best crops, irrigation strategies, and sustainable practices.
+        
+        - **Climate & weather analysis**  
+        - **Geospatial mapping & NDVI vegetation monitoring**  
+        - **Machine learning crop & irrigation recommendations**
+        """)
+        
+        st.markdown("### 🎯 Vision")
+        st.write("Enable **data-driven agriculture in Morocco**, improving productivity while preserving natural resources.")
         
     with col2:
-        st.markdown("""
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <h3>📄 Project Documentation</h3>
-            <p><a href="https://drive.google.com/uc?export=download&id=1F8USlTvi2hP01RwpBTJNaTIczRovVlLU" target="_blank">
-            📘 AgriSense Morocco – Project Overview (PDF)</a></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("### 📄 Project Documentation")
+        st.markdown(
+            "[📘 AgriSense Morocco – Project Overview (PDF)](https://drive.google.com/uc?export=download&id=1F8USlTvi2hP01RwpBTJNaTIczRovVlLU)",
+            unsafe_allow_html=True
+        )
     
     st.markdown("---")
     
@@ -108,14 +105,8 @@ def intro_page():
         if st.button("🚀 Explore Dashboard"):
             st.session_state.page = "dashboard"
             st.rerun()
-    
-    # Footer with email
-    st.markdown("""
-    <div style="text-align:center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#6B8E23;">
-        Powered by <b>Mohamed Amine Jaghouti</b><br>
-        <a href="mailto:Mohamedaminejaghouti@gmail.com">Mohamedaminejaghouti@gmail.com</a>
-    </div>
-    """, unsafe_allow_html=True)
+
+
 
 # =====================================================
 # DASHBOARD PAGE
@@ -268,3 +259,4 @@ if st.session_state.page=="intro":
     intro_page()
 else:
     dashboard_page()
+
