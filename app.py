@@ -92,12 +92,18 @@ def intro_page():
             """
         )
 
-pdf_link = "https://drive.google.com/file/d/1F8USlTvi2hP01RwpBTJNaTIczRovVlLU/view?usp=sharing"
 
-st.markdown(
-    f"📄 **[AgriSense Morocco – Project Overview (PDF)]({pdf_link})**",
-    unsafe_allow_html=True
-)
+with col2:
+    st.markdown("### 📄 Project Documentation")
+
+    st.write(
+        "Access the full concept, architecture, and vision behind AgriSense Morocco:"
+    )
+
+    st.link_button(
+        "📘 AgriSense Morocco – Project Overview (PDF)",
+        "https://drive.google.com/file/d/1F8USlTvi2hP01RwpBTJNaTIczRovVlLU/view?usp=sharing"
+    )
 
         # Example later:
         # st.download_button("Download concept PDF", data=open("assets/agrisense.pdf","rb"))
@@ -273,10 +279,3 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
-
-
-
-
-
-
-
