@@ -77,7 +77,7 @@ def intro_page():
         st.markdown("### 🤖 Powered by")
         st.write(
             """
-            - Machine Learning (Random Forest Models)  
+            - Machine Learning - Artificial Intelligence Emb.Systems (Random Forest Models)  
             - Climate & Weather APIs  
             - Geospatial Mapping (OpenStreetMap)  
             - Sustainable Agriculture Indicators  
@@ -94,13 +94,13 @@ def intro_page():
 
     with col2:
         st.markdown("### 📄 Project Documentation")
-        st.info("You can add your scientific PDF / brochure here.")
+        st.info("https://drive.google.com/file/d/1F8USlTvi2hP01RwpBTJNaTIczRovVlLU/view?usp=sharing")
         # Example later:
         # st.download_button("Download concept PDF", data=open("assets/agrisense.pdf","rb"))
 
     st.markdown("---")
 
-    col_btn = st.columns(3)[1]
+    col_btn = st.columns(7)[3]
     with col_btn:
         if st.button("🚀 Let's explore it"):
             st.session_state.page = "dashboard"
@@ -269,3 +269,4 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
+
