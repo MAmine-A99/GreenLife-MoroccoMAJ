@@ -9,46 +9,34 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 import qrcode
 
-# -----------------------------
+# =====================================================
 # PAGE CONFIG
-# -----------------------------
-st.set_page_config(
-    page_title="AgriSense Morocco",
-    page_icon="🌱",
-    layout="wide"
-)
+# =====================================================
+st.set_page_config(page_title="AgriSense Morocco", layout="wide", page_icon="🌱")
 
-# -----------------------------
-# CSS STYLING
-# -----------------------------
+# =====================================================
+# GLOBAL STYLE
+# =====================================================
 st.markdown("""
 <style>
-/* Big CTA button */
-div[data-testid="stButton"] > button#explore_btn {
-    height: 60px;
-    font-size: 22px;
-    font-weight: 700;
-    color: white;
-    background: linear-gradient(90deg, #D97706 0%, #FACC15 100%);
-    border-radius: 35px;
-    width: 100%;
+.stButton>button {
+    border-radius: 14px;
+    background-color:#D97706;
+    color:white;
+    height:42px;
+    width:100%;
 }
-
-/* iPhone-style container */
-.intro-container {
-    max-width: 400px;
-    margin: auto;
-    background-color: #ffffff;
-    border-radius: 50px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-    padding: 30px;
+.metric-card {
+    border-radius: 14px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# SESSION STATE
-# -----------------------------
+# =====================================================
+# SESSION STATE – PAGE ROUTER
+# =====================================================
 if "page" not in st.session_state:
     st.session_state.page = "intro"
 
@@ -58,55 +46,78 @@ if "marker" not in st.session_state:
 if "weather" not in st.session_state:
     st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
 
-# -----------------------------
-# INTRO PAGE
-# -----------------------------
+# =====================================================
+# INTRO / PRESENTATION PAGE
+# =====================================================
 def intro_page():
-    st.markdown("<br>", unsafe_allow_html=True)
 
-    # iPhone-style container start
-    st.markdown('<div class="intro-container">', unsafe_allow_html=True)
-
-    st.markdown("<h1 style='text-align:center; color:#D97706;'>🌱 AgriSense Morocco</h1>", unsafe_allow_html=True)
-    st.markdown("<h4 style='text-align:center; color:#6B8E23;'>Smart Agriculture • AI • Sustainability</h4>", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Fancy farmer photo
-    st.image(
-        "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80",
-        use_container_width=True
+    st.markdown("<h1 style='text-align:center;color:#D97706'>🌱 AgriSense Morocco</h1>", unsafe_allow_html=True)
+    st.markdown(
+        "<h3 style='text-align:center;color:#6B8E23'>AI-powered sustainable agriculture decision support</h3>",
+        unsafe_allow_html=True
     )
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("---")
 
-    # Description
-    st.markdown("""
-    **AgriSense Morocco** is an AI-powered decision-support platform designed to help
-    farmers, cooperatives, and institutions monitor crops, anticipate climate risks,
-    and optimize agricultural productivity across Morocco.
+    col1, col2 = st.columns([1.3, 1])
 
-    By combining **geospatial data, climate intelligence, and predictive analytics**,
-    AgriSense transforms raw environmental data into actionable insights.
-    """)
+    with col1:
+        st.markdown("### 🚜 About the Company & Idea")
+        st.write(
+            """
+            **AgriSense Morocco** is an intelligent agricultural decision-support platform
+            designed for the Moroccan ecosystem.
 
-    st.markdown("<br>", unsafe_allow_html=True)
+            It combines **climate data, geospatial analytics, vegetation indices (NDVI)** 
+            and **machine learning models** to assist farmers, cooperatives, and institutions
+            in choosing optimal crops, irrigation strategies, and sustainable practices.
+            """
+        )
 
-    # Big CTA button centered
-    col1, col2, col3 = st.columns([1,2,1])
+        st.markdown("### 🤖 Powered by")
+        st.write(
+            """
+            - Machine Learning (Random Forest Models)  
+            - Climate & Weather APIs  
+            - Geospatial Mapping (OpenStreetMap)  
+            - Sustainable Agriculture Indicators  
+            """
+        )
+
+        st.markdown("### 🎯 Vision")
+        st.write(
+            """
+            Enable **data-driven agriculture in Morocco**, improving productivity
+            while preserving water resources and environmental balance.
+            """
+        )
+
     with col2:
-        if st.button("🚀 LET’S EXPLORE AGRISENSE", key="explore_btn"):
+        st.markdown("### 📄 Project Documentation")
+        st.write("Access the full concept, architecture, and vision behind AgriSense Morocco:")
+
+        st.link_button(
+            "📘 AgriSense Morocco – Project Overview (PDF)",
+            "https://drive.google.com/file/d/1F8USlTvi2hP01RwpBTJNaTIczRovVlLU/view?usp=sharing"
+        )
+
+    st.markdown("---")
+
+    col_btn = st.columns(3)[1]
+    with col_btn:
+        if st.button("🚀 Let's explore it"):
             st.session_state.page = "dashboard"
             st.rerun()
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color: grey;'>Powered by Mohamed • AI for Sustainable Agriculture</p>", unsafe_allow_html=True)
+    st.markdown(
+        "<p style='text-align:center;color:#6B8E23'>Powered by Mohamed Amine Jaghouti</p>",
+        unsafe_allow_html=True
+    )
 
-    # iPhone-style container end
-    st.markdown("</div>", unsafe_allow_html=True)
 
-# -----------------------------
-# DASHBOARD PAGE (UNCHANGED)
-# -----------------------------
+# =====================================================
+# DASHBOARD PAGE (YOUR ORIGINAL APP)
+# =====================================================
 def dashboard_page():
 
     st.sidebar.title("📍 Select Region (Morocco)")
@@ -129,7 +140,7 @@ def dashboard_page():
     fig_map = go.Figure(go.Scattermapbox(
         lat=map_df["lat"], lon=map_df["lon"],
         mode="markers",
-        marker=dict(size=14, color="#D97706"),
+        marker=go.scattermapbox.Marker(size=14, color="#D97706"),
         text=["Selected Region"]
     ))
     fig_map.update_layout(
@@ -142,6 +153,7 @@ def dashboard_page():
     # ---------------- LOCATION ----------------
     API_KEY = "be87b67bc35d53a2b6db5abe4f569460"
     city_name = "Unknown"
+
     try:
         geo = requests.get(
             f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={API_KEY}",
@@ -204,6 +216,7 @@ def dashboard_page():
     irr_pred = irr_enc.inverse_transform(irr_model.predict(X_input))[0]
     probs = crop_model.predict_proba(X_input)[0]
 
+    # ---------------- METRICS ----------------
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("🌡 Temperature", f"{temp:.1f} °C")
     c2.metric("🌧 Rainfall", f"{rain:.1f} mm")
@@ -213,20 +226,48 @@ def dashboard_page():
     st.success(f"🌾 Recommended Crop: **{crop_pred.capitalize()}**")
     st.info(f"💦 Irrigation Level: **{irr_pred.capitalize()}**")
 
-    fig = go.Figure(go.Bar(x=crop_enc.classes_, y=probs))
+    # ---------------- CHART ----------------
+    fig = go.Figure(go.Bar(x=crop_enc.classes_, y=probs, marker_color="#6B8E23"))
     fig.update_layout(title="Crop Suitability Probabilities")
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("### 📱 Scan to open AgriSense Morocco")
-    qr = qrcode.make("https://agrisense-moroccomaj-nngj5uc898kzkk7ae4j9go.streamlit.app/")
+    # ---------------- PDF ----------------
+    def generate_pdf():
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer)
+        c.drawString(50, 800, "AgriSense Morocco Report")
+        y = 760
+        for line in [
+            f"Region: {city_name}",
+            f"Temperature: {temp:.1f} °C",
+            f"Rainfall: {rain:.1f} mm",
+            f"NDVI: {ndvi:.2f}",
+            f"Crop: {crop_pred}"
+        ]:
+            c.drawString(50, y, line)
+            y -= 20
+        c.save()
+        buffer.seek(0)
+        return buffer
+
+    if st.button("📄 Export PDF Report"):
+        st.download_button("Download PDF", generate_pdf(),
+                           file_name=f"AgriSense_{city_name}.pdf",
+                           mime="application/pdf")
+
+    # ---------------- QR ----------------
+    APP_URL = "https://agrisense-moroccomaj-nngj5uc898kzkk7ae4j9go.streamlit.app/"
+    qr = qrcode.make(APP_URL)
     buf = BytesIO()
     qr.save(buf)
     buf.seek(0)
+
+    st.markdown("### 📱 Scan to open AgriSense Morocco")
     st.image(buf, width=160)
 
-# -----------------------------
+# =====================================================
 # ROUTER
-# -----------------------------
+# =====================================================
 if st.session_state.page == "intro":
     intro_page()
 else:
