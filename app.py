@@ -94,7 +94,7 @@ def intro_page():
 
     with col2:
         st.markdown("### 📄 Project Documentation")
-        st.info("You can add your scientific PDF / brochure here.")
+        st.info("https://drive.google.com/file/d/1F8USlTvi2hP01RwpBTJNaTIczRovVlLU/view?usp=sharing")
         # Example later:
         # st.download_button("Download concept PDF", data=open("assets/agrisense.pdf","rb"))
 
@@ -269,3 +269,4 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
+
