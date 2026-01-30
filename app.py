@@ -9,99 +9,74 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 import qrcode
 
-# ==========================
-# PAGE CONFIG
-# ==========================
-st.set_page_config(page_title="AgriSense Morocco", layout="wide", page_icon="🌱")
-
-# ==========================
-# GLOBAL STYLE
-# ==========================
-st.markdown("""
-<style>
-.stButton>button {
-    border-radius: 20px;
-    background-color:#D97706;
-    color:white;
-    height:55px;
-    font-size:18px;
-    font-weight:bold;
-    width:80%;
-}
-.intro-text {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color:#1C1C1C;
-}
-h1,h2,h3 {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color:#1C1C1C;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ==========================
-# SESSION STATE – PAGE ROUTER
-# ==========================
-if "page" not in st.session_state:
-    st.session_state.page = "intro"
-
-if "marker" not in st.session_state:
-    st.session_state.marker = {"lat": 31.6295, "lon": -7.9811}
-
-if "weather" not in st.session_state:
-    st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
-
-# ==========================
-# INTRO PAGE
-# ==========================
 def intro_page():
-
-    st.markdown("<br><br>", unsafe_allow_html=True)
-
-    # --- IMAGES AT THE TOP ---
-    st.image([
-        "https://drive.google.com/uc?export=download&id=1PVcGYAuAfQ5F5vvNiAvqs4o7qz0LnOHw",
-        "https://drive.google.com/uc?export=download&id=1moe5xGrzorR8IXguLWNfEYavO0c-lsPY",
-        "https://drive.google.com/uc?export=download&id=13V6CGT2itEIcr3g6Biu9jfOdiprS6iqo"
-    ], width=900, caption=["Smart AI in the field", "Dashboard preview", "Mobile interface"])
-
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- TITLE & SUBTITLE ---
-    st.markdown("<h1 style='text-align:center;'>🌱 AgriSense Morocco</h1>", unsafe_allow_html=True)
-    st.markdown(
-        "<h3 style='text-align:center;color:#555555;'>AI-powered Sustainable Agriculture Decision Support</h3>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # --- DESCRIPTION ---
-    st.markdown("""
-    <div class='intro-text' style='text-align:center; max-width:900px; margin:auto; font-size:18px;'>
-    AgriSense Morocco combines <b>climate intelligence, geospatial analytics, NDVI vegetation indices,</b> 
-    and <b>machine learning models</b> to support farmers, cooperatives, and institutions in Morocco.
-    It helps choose optimal crops, irrigation strategies, and sustainable practices for a productive and resilient agriculture.
+    # --- HERO SECTION ---
+    st.markdown(f"""
+    <div style="position: relative; text-align: center; color: white;">
+        <img src="https://drive.google.com/uc?export=download&id=1PVcGYAuAfQ5F5vvNiAvqs4o7qz0LnOHw" width="100%" style="border-radius:15px;"/>
+        <div style="position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);">
+            <h1 style='font-size:50px; font-weight:bold; color:#fff;'>🌱 AgriSense Morocco</h1>
+            <h3 style='font-size:22px; color:#FFD700;'>AI-powered Sustainable Agriculture Decision Support</h3>
+            <br>
+            <a href='#dashboard' style='text-decoration:none;'>
+                <button style="padding:15px 40px; font-size:20px; font-weight:bold; color:white; background-color:#D97706; border-radius:25px;">🚀 LET’S EXPLORE AGRISENSE</button>
+            </a>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    # --- CTA BUTTON ---
-    col1, col2, col3 = st.columns([1,2,1])
+    # --- FEATURE IMAGES ---
+    st.markdown("### Features & Interfaces")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.image("https://drive.google.com/uc?export=download&id=1PVcGYAuAfQ5F5vvNiAvqs4o7qz0LnOHw", caption="Smart AI in the field")
     with col2:
-        if st.button("🚀 LET’S EXPLORE AGRISENSE"):
-            st.session_state.page = "dashboard"
-            st.rerun()
+        st.image("https://drive.google.com/uc?export=download&id=1moe5xGrzorR8IXguLWNfEYavO0c-lsPY", caption="Dashboard preview")
+    with col3:
+        st.image("https://drive.google.com/uc?export=download&id=13V6CGT2itEIcr3g6Biu9jfOdiprS6iqo", caption="Mobile interface")
 
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- DESCRIPTION ---
+    st.markdown("""
+    <div style='text-align:center; max-width:900px; margin:auto; font-size:18px; color:#333;'>
+    AgriSense Morocco integrates:
+    <ul style='text-align:left; display:inline-block;'>
+        <li><b>Climate intelligence</b> for weather-based decisions</li>
+        <li><b>Geospatial analytics & NDVI</b> for crop monitoring</li>
+        <li><b>Machine learning models</b> to recommend optimal crops and irrigation</li>
+    </ul>
+    Supporting <b>farmers, cooperatives, and institutions</b> for a sustainable, productive, and resilient agriculture ecosystem in Morocco.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- PDF & QR CALL-OUT ---
+    col1, col2 = st.columns([1,1])
+    with col1:
+        st.markdown("### 📄 Download Project PDF")
+        st.download_button("Download PDF Report", "Your PDF file content here", file_name="AgriSense_Intro.pdf", mime="application/pdf")
+    with col2:
+        st.markdown("### 📱 Scan to open AgriSense")
+        APP_URL = "https://agrisense-moroccomaj-nngj5uc898kzkk7ae4j9go.streamlit.app/"
+        qr = qrcode.make(APP_URL)
+        buf = BytesIO()
+        qr.save(buf)
+        buf.seek(0)
+        st.image(buf, width=160)
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
     # --- FOOTER ---
     st.markdown(
         "<p style='text-align:center;color:#888888;'>Powered by Mohamed Amine Jaghouti • AI for Sustainable Agriculture</p>",
         unsafe_allow_html=True
     )
-
 
 # ==========================
 # DASHBOARD PAGE (UNCHANGED)
@@ -261,3 +236,4 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
+
