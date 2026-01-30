@@ -94,12 +94,7 @@ def intro_page():
 
 
    with col2:
-    st.markdown("### 📄 Project Documentation")
-
-    st.write(
-        "Access the full concept, architecture, and vision behind AgriSense Morocco:"
-    )
-
+   
     st.markdown(
         "[📘 AgriSense Morocco – Project Overview (PDF)](https://drive.google.com/uc?export=download&id=1F8USlTvi2hP01RwpBTJNaTIczRovVlLU)",
         unsafe_allow_html=True
@@ -277,6 +272,7 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
+
 
 
 
