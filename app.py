@@ -17,15 +17,11 @@ st.set_page_config(page_title="AgriSense Morocco", layout="wide", page_icon="ðŸŒ
 # =====================================================
 # GLOBAL STYLE (iPhone / San Francisco font)
 # =====================================================
-st.write("This text should now be in iPhone / San Francisco font")
-st.metric("Test Metric", "123")
-st.button("Test Button")
-
 st.markdown("""
 <style>
-/* iPhone / San Francisco font for all text */
-body, h1, h2, h3, h4, h5, h6, p, div {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+/* Force iPhone / San Francisco system font globally */
+* {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 /* Buttons */
@@ -36,18 +32,21 @@ body, h1, h2, h3, h4, h5, h6, p, div {
     height:50px;
     width:100%;
     font-size:18px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
-/* Metrics cards */
-.metric-card {
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
-    background-color:#FDFDFD;
-    text-align:center;
+/* Metrics */
+[data-testid="metric-container"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+/* Markdown text */
+.css-1v3fvcr p, .css-1v3fvcr h1, .css-1v3fvcr h2, .css-1v3fvcr h3, .css-1v3fvcr h4 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # =====================================================
 # SESSION STATE â€“ PAGE ROUTER
@@ -259,5 +258,6 @@ if st.session_state.page=="intro":
     intro_page()
 else:
     dashboard_page()
+
 
 
