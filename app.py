@@ -92,8 +92,7 @@ def intro_page():
             """
         )
 
-    with col2:
-pdf_link = "https://drive.google.com/file/d/FILE_ID/view?usp=sharing"
+pdf_link = "https://drive.google.com/file/d/1F8USlTvi2hP01RwpBTJNaTIczRovVlLU/view?usp=sharing"
 
 st.markdown(
     f"📄 **[AgriSense Morocco – Project Overview (PDF)]({pdf_link})**",
@@ -274,6 +273,7 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
+
 
 
 
