@@ -14,9 +14,37 @@ import qrcode
 # -----------------------------
 st.set_page_config(
     page_title="AgriSense Morocco",
-    page_icon="🌍",
+    page_icon="🌱",
     layout="wide"
 )
+
+# -----------------------------
+# CSS STYLING
+# -----------------------------
+st.markdown("""
+<style>
+/* Big CTA button */
+div[data-testid="stButton"] > button#explore_btn {
+    height: 60px;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(90deg, #D97706 0%, #FACC15 100%);
+    border-radius: 35px;
+    width: 100%;
+}
+
+/* iPhone-style container */
+.intro-container {
+    max-width: 400px;
+    margin: auto;
+    background-color: #ffffff;
+    border-radius: 50px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    padding: 30px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # -----------------------------
 # SESSION STATE
@@ -24,71 +52,61 @@ st.set_page_config(
 if "page" not in st.session_state:
     st.session_state.page = "intro"
 
+if "marker" not in st.session_state:
+    st.session_state.marker = {"lat": 31.6295, "lon": -7.9811}
+
+if "weather" not in st.session_state:
+    st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
 
 # -----------------------------
 # INTRO PAGE
 # -----------------------------
 def intro_page():
-
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # TITLE
-    st.markdown(
-        "<h1 style='text-align:center;'>🌱 AgriSense Morocco</h1>",
-        unsafe_allow_html=True
-    )
+    # iPhone-style container start
+    st.markdown('<div class="intro-container">', unsafe_allow_html=True)
 
-    st.markdown(
-        "<h4 style='text-align:center; color: grey;'>Smart Agriculture • AI • Sustainability</h4>",
-        unsafe_allow_html=True
-    )
-
+    st.markdown("<h1 style='text-align:center; color:#D97706;'>🌱 AgriSense Morocco</h1>", unsafe_allow_html=True)
+    st.markdown("<h4 style='text-align:center; color:#6B8E23;'>Smart Agriculture • AI • Sustainability</h4>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # OPTIONAL IMAGE (LOCAL OR URL)
-    # Local: images/hero.jpg
-    # URL: https://...
+    # Fancy farmer photo
     st.image(
-        "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+        "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80",
         use_container_width=True
     )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # DESCRIPTION
-    st.markdown(
-        """
-        **AgriSense Morocco** is an AI-powered decision-support platform designed to help
-        farmers, cooperatives, and institutions monitor crops, anticipate climate risks,
-        and optimize agricultural productivity across Morocco.
+    # Description
+    st.markdown("""
+    **AgriSense Morocco** is an AI-powered decision-support platform designed to help
+    farmers, cooperatives, and institutions monitor crops, anticipate climate risks,
+    and optimize agricultural productivity across Morocco.
 
-        By combining **geospatial data, climate intelligence, and predictive analytics**,
-        AgriSense transforms raw environmental data into actionable insights.
-        """
-    )
+    By combining **geospatial data, climate intelligence, and predictive analytics**,
+    AgriSense transforms raw environmental data into actionable insights.
+    """)
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # BIG CTA BUTTON (FIXED)
-    col_left, col_center, col_right = st.columns([1, 2, 1])
-
-    with col_center:
+    # Big CTA button centered
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
         if st.button("🚀 LET’S EXPLORE AGRISENSE", key="explore_btn"):
             st.session_state.page = "dashboard"
             st.rerun()
 
-    # FOOTER (PLACED LOWER)
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color: grey;'>Powered by Mohamed • AI for Sustainable Agriculture</p>", unsafe_allow_html=True)
 
-    st.markdown(
-        "<p style='text-align:center; color: grey;'>Powered by Mohamed • AI for Sustainable Agriculture</p>",
-        unsafe_allow_html=True
-    )
+    # iPhone-style container end
+    st.markdown("</div>", unsafe_allow_html=True)
 
-
-# =====================================================
-# DASHBOARD PAGE
-# =====================================================
+# -----------------------------
+# DASHBOARD PAGE (UNCHANGED)
+# -----------------------------
 def dashboard_page():
 
     st.sidebar.title("📍 Select Region (Morocco)")
@@ -124,7 +142,6 @@ def dashboard_page():
     # ---------------- LOCATION ----------------
     API_KEY = "be87b67bc35d53a2b6db5abe4f569460"
     city_name = "Unknown"
-
     try:
         geo = requests.get(
             f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={API_KEY}",
@@ -207,14 +224,10 @@ def dashboard_page():
     buf.seek(0)
     st.image(buf, width=160)
 
-# =====================================================
+# -----------------------------
 # ROUTER
-# =====================================================
+# -----------------------------
 if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
-
-
-
-
