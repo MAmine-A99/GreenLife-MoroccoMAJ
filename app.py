@@ -59,13 +59,13 @@ def intro_page():
     st.markdown("<br><br>", unsafe_allow_html=True)
 
     # --- IMAGES AT THE TOP ---
-    st.image([
-        "/mnt/data/aa0717d6-9be8-4217-b16e-bf754e5e8b97.png",
-        "/mnt/data/80f59ee9-b845-48ea-947d-43468a39050f.png",
-        "/mnt/data/a64658b5-e730-46f1-bf79-91045d073cf1.png"
-    ], width=900, caption=["Smart AI in the field", "Dashboard preview", "Mobile interface"])
+st.image([
+    "https://drive.google.com/uc?export=download&id=1PVcGYAuAfQ5F5vvNiAvqs4o7qz0LnOHw",
+    "https://drive.google.com/uc?export=download&id=1moe5xGrzorR8IXguLWNfEYavO0c-lsPY",
+    "https://drive.google.com/uc?export=download&id=13V6CGT2itEIcr3g6Biu9jfOdiprS6iqo"
+], width=900, caption=["Smart AI in the field", "Dashboard preview", "Mobile interface"])
 
-    st.markdown("<br>", unsafe_allow_html=True)
+
 
     # --- TITLE & SUBTITLE ---
     st.markdown("<h1 style='text-align:center;'>🌱 AgriSense Morocco</h1>", unsafe_allow_html=True)
@@ -261,3 +261,4 @@ if st.session_state.page == "intro":
     intro_page()
 else:
     dashboard_page()
+
