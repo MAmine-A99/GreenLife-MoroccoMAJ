@@ -15,13 +15,11 @@ import qrcode
 st.set_page_config(page_title="AgriSense Morocco", layout="wide", page_icon="🌱")
 
 # =====================================================
-# GLOBAL STYLE (iPhone / San Francisco font)
+# GLOBAL STYLE
 # =====================================================
-
-
 st.markdown("""
 <style>
-/* Force iPhone / San Francisco system font globally */
+/* Force iPhone / San Francisco font globally */
 * {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
@@ -41,14 +39,8 @@ st.markdown("""
 [data-testid="metric-container"] {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
-
-/* Markdown text */
-.css-1v3fvcr p, .css-1v3fvcr h1, .css-1v3fvcr h2, .css-1v3fvcr h3, .css-1v3fvcr h4 {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-}
 </style>
 """, unsafe_allow_html=True)
-
 
 # =====================================================
 # SESSION STATE – PAGE ROUTER
@@ -68,54 +60,65 @@ if "weather" not in st.session_state:
 def intro_page():
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Hero title + subtitle
-st.markdown("""
-<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-<h1 style='text-align:center; color:#D97706; font-size:50px;'>🌱 AgriSense Morocco</h1>
-<h3 style='text-align:center; color:#6B8E23;'>AI-powered Sustainable Agriculture Decision Support</h3>
-<p style='text-align:center;'>Powered by Mohamed Amine Jaghouti<br>Mohamedaminejaghouti@gmail.com</p>
-</div>
-""", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align:center; color:#6B8E23;'>AI-powered Sustainable Agriculture Decision Support</h3>", unsafe_allow_html=True)
+    # Hero title + subtitle + footer with email
+    st.markdown("""
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <h1 style='text-align:center; color:#D97706; font-size:50px;'>🌱 AgriSense Morocco</h1>
+        <h3 style='text-align:center; color:#6B8E23;'>AI-powered Sustainable Agriculture Decision Support</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.markdown("---")
     
     col1, col2 = st.columns([2,1])
     
     with col1:
-        st.markdown("### 🚜 About AgriSense")
-        st.write("""
-        Since Morocco faces unpredictable weather, water scarcity, and crop management challenges, AgriSense Morocco provides a smart solution. 
-        By combining AI, real-time weather data, and satellite-based NDVI analysis, it helps farmers and cooperatives choose the best crops, irrigation strategies, and sustainable practices. 
-        Our vision is to enable data-driven agriculture that increases productivity, conserves resources, and builds a resilient farming ecosystem across Morocco.
-
-        - **Climate & weather analysis**  
-        - **Geospatial mapping & NDVI vegetation monitoring**  
-        - **Machine learning crop & irrigation recommendations**
-        
-        Designed to help farmers, cooperatives, and institutions **increase yield, save water, and plan resilient agriculture**.
-        """)
-        st.markdown("### 🎯 Vision")
-        st.write("Enable **data-driven agriculture in Morocco**, improving productivity while preserving natural resources.")
+        st.markdown("""
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <h3>🚜 About AgriSense</h3>
+            <p>
+            Since Morocco faces unpredictable weather, water scarcity, and crop management challenges, 
+            <b>AgriSense Morocco</b> provides a smart solution. 
+            By combining AI, real-time weather data, and satellite-based NDVI analysis, it helps farmers 
+            and cooperatives choose the best crops, irrigation strategies, and sustainable practices.
+            </p>
+            <p><b>Key Features:</b><br>
+            - Climate & weather analysis<br>
+            - Geospatial mapping & NDVI vegetation monitoring<br>
+            - Machine learning crop & irrigation recommendations
+            </p>
+            <h3>🎯 Vision</h3>
+            <p>Enable <b>data-driven agriculture in Morocco</b>, improving productivity while preserving natural resources.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
     with col2:
-        st.markdown("### 📄 Project Documentation")
-        st.markdown(
-            "[📘 AgriSense Morocco – Project Overview (PDF)](https://drive.google.com/uc?export=download&id=1F8USlTvi2hP01RwpBTJNaTIczRovVlLU)",
-            unsafe_allow_html=True
-        )
+        st.markdown("""
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <h3>📄 Project Documentation</h3>
+            <p><a href="https://drive.google.com/uc?export=download&id=1F8USlTvi2hP01RwpBTJNaTIczRovVlLU" target="_blank">
+            📘 AgriSense Morocco – Project Overview (PDF)</a></p>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("---")
+    
     col_btn = st.columns([1,2,1])[1]
     with col_btn:
         if st.button("🚀 Explore Dashboard"):
             st.session_state.page = "dashboard"
             st.rerun()
     
-    st.markdown("<p style='text-align:center;color:#6B8E23;'>Powered by Mohamed Amine Jaghouti</p>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#555555;'>Email: Mohamedaminejaghouti@gmail.com</p>", unsafe_allow_html=True)
+    # Footer with email
+    st.markdown("""
+    <div style="text-align:center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#6B8E23;">
+        Powered by <b>Mohamed Amine Jaghouti</b><br>
+        <a href="mailto:Mohamedaminejaghouti@gmail.com">Mohamedaminejaghouti@gmail.com</a>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =====================================================
-# DASHBOARD PAGE (unchanged)
+# DASHBOARD PAGE
 # =====================================================
 def dashboard_page():
     st.sidebar.title("📍 Select Region (Morocco)")
@@ -133,7 +136,7 @@ def dashboard_page():
     
     lat, lon = st.session_state.marker["lat"], st.session_state.marker["lon"]
     
-    # Map
+    # ---------------- MAP ----------------
     map_df = pd.DataFrame([{"lat": lat, "lon": lon}])
     fig_map = go.Figure(go.Scattermapbox(
         lat=map_df["lat"], lon=map_df["lon"],
@@ -145,7 +148,7 @@ def dashboard_page():
                           margin=dict(l=0, r=0, t=0, b=0), height=420)
     st.plotly_chart(fig_map, use_container_width=True)
     
-    # Weather & city
+    # ---------------- WEATHER ----------------
     API_KEY = "be87b67bc35d53a2b6db5abe4f569460"
     city_name = "Unknown"
     try:
@@ -156,7 +159,6 @@ def dashboard_page():
         pass
     st.markdown(f"### 📌 Selected Area: **{city_name}**")
     
-    # Fetch weather
     if st.sidebar.button("🔄 Refresh Weather"):
         try:
             weather = requests.get(f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={API_KEY}", timeout=5).json()
@@ -173,7 +175,7 @@ def dashboard_page():
     rain = st.session_state.weather["rain"]
     ndvi = float(np.clip(np.random.normal(0.55, 0.1), 0.2, 0.85))
     
-    # AI Models
+    # ---------------- AI MODELS ----------------
     crops = ["wheat","olives","tomatoes","citrus","grapes","almonds","vegetables"]
     irrigation = ["low","low","high","medium","medium","low","high"]
     
@@ -201,7 +203,7 @@ def dashboard_page():
     irr_pred = irr_enc.inverse_transform(irr_model.predict(X_input))[0]
     probs = crop_model.predict_proba(X_input)[0]
     
-    # Metrics + Alerts
+    # ---------------- METRICS + ALERTS ----------------
     c1,c2,c3,c4 = st.columns(4)
     c1.metric("🌡 Temperature", f"{temp:.1f} °C")
     c2.metric("🌧 Rainfall", f"{rain:.1f} mm")
@@ -221,12 +223,12 @@ def dashboard_page():
     if alert_text:
         st.warning(alert_text)
     
-    # Chart
+    # ---------------- CHART ----------------
     fig = go.Figure(go.Bar(x=crop_enc.classes_, y=probs, marker_color="#6B8E23"))
     fig.update_layout(title="Crop Suitability Probabilities")
     st.plotly_chart(fig, use_container_width=True)
     
-    # PDF
+    # ---------------- PDF ----------------
     def generate_pdf():
         buffer = BytesIO()
         c = canvas.Canvas(buffer)
@@ -250,7 +252,7 @@ def dashboard_page():
                            file_name=f"AgriSense_{city_name}.pdf",
                            mime="application/pdf")
     
-    # QR
+    # ---------------- QR ----------------
     APP_URL = "https://agrisense-moroccomaj-nngj5uc898kzkk7ae4j9go.streamlit.app/"
     qr = qrcode.make(APP_URL)
     buf = BytesIO()
@@ -266,8 +268,3 @@ if st.session_state.page=="intro":
     intro_page()
 else:
     dashboard_page()
-
-
-
-
-
