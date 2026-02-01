@@ -66,7 +66,7 @@ def intro_page():
 
         st.markdown("### 🔬 Scientific & Research Basis")
         st.write("""
-        AgriSense Morocco is inspired by recent research in smart agriculture platforms integrating **AI, IoT, and precision farming techniques**.
+        AgriSense Morocco integrates **AI, IoT, and precision farming techniques**.
         Key foundations:
         - **AI & Predictive Analytics:** Recommend crops and irrigation based on weather, NDVI, and soil indicators.
         - **NDVI Monitoring:** Satellite-based vegetation health for early stress detection.
@@ -222,3 +222,4 @@ if st.session_state.page=="intro":
     intro_page()
 else:
     dashboard_page()
+
