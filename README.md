@@ -1,108 +1,96 @@
-🌱 AgriSense Morocco
+🌱 GREENLIFE MOROCCO
+Project: GreenLife – AI-Powered Smart Agriculture Decision Support System
 
-AI-Powered Smart Agriculture Decision Support System
+GREENLIFE MOROCCO is an innovation-driven initiative focused on sustainability, climate action, and food security. Within this vision, AgriSense is an AI-powered decision support system designed to promote climate-smart agriculture in Morocco.
 
-AgriSense Morocco is an interactive web application that uses environmental data and machine learning to support sustainable agricultural decision-making in Morocco. It helps farmers, students, and decision-makers identify suitable crops, irrigation needs, and climate risks through a simple visual dashboard.
+AgriSense is a web-based interactive application that leverages artificial intelligence, environmental indicators, and machine learning to support farmers, students, and decision-makers in making informed agricultural choices adapted to Morocco’s diverse climatic conditions.
+
+Through a simple and visual dashboard, the platform provides insights on crop suitability, irrigation needs, and climate risks, making advanced decision-support tools accessible to non-technical users.
 
 🎯 Objectives
 
-Support sustainable agriculture and food security
+Support sustainable agriculture and food security in Morocco
 
-Use AI and environmental indicators to guide crop selection
+Optimize crop selection and irrigation using AI-driven insights
 
-Provide accessible decision support for non-technical users
+Assist farmers and stakeholders in adapting to climate variability
 
-Demonstrate real-world AI application in agriculture
+Bridge technology, agriculture, and environmental sustainability
 
+Demonstrate real-world AI applications with social and environmental impact
 
 🧠 How It Works
 
-User selects a location in Morocco (map or coordinates)
+The user selects a location in Morocco (interactive map or coordinates)
 
-Real-time weather data is fetched (temperature, humidity, rainfall)
+The system retrieves real-time weather data (temperature, humidity, rainfall)
 
-Vegetation health is estimated using a simulated NDVI indicator
+Vegetation health is assessed using a simulated NDVI indicator
 
-A machine-learning model analyzes the data
+A machine-learning model processes the environmental data
 
+The platform then recommends:
 
-The app recommends:
+🌾 Most suitable crops
 
-Best-suited crop
+💧 Optimal irrigation levels
 
-Irrigation level
-
-Risk awareness through visual indicators
-
+⚠️ Climate and environmental risk indicators
 
 🛠️ Technologies Used
 
 Python 3.11
 
-Streamlit – interactive web app
+Streamlit – interactive web interface
 
 Scikit-learn – machine learning (Random Forest)
 
-Pandas & NumPy – data processing
+Pandas & NumPy – data analysis and processing
 
-Plotly – interactive charts & maps
+Plotly – interactive visualizations and maps
 
-OpenWeatherMap API – real-time weather data
+OpenWeatherMap API – real-time climate data
 
-ReportLab – PDF export
+ReportLab – PDF report generation
 
+📊 Key Features
 
-📊 Features
+Morocco-focused interactive map
 
-Interactive map (Morocco-focused)
+Real-time weather and climate data integration
 
-Real-time weather integration
+AI-based crop and irrigation predictions
 
-AI-based crop and irrigation prediction
+NDVI-based vegetation health analysis
 
-NDVI-based vegetation insight
+Climate “what-if” scenario simulation
 
-What-if climate scenario analysis
+Downloadable decision-support PDF reports
 
-Downloadable PDF report
+Clean, accessible, and user-friendly interface
 
-Simple UI designed for accessibility
+🌍 Sustainability & Impact
 
-
-🌍 Sustainability & Food Security
-
-AgriSense Morocco contributes to climate-smart agriculture, helping optimize resource use, reduce water waste, and improve crop resilience—supporting long-term sustainability and food security goals.
-
+AgriSense reflects GREENLIFE MOROCCO’s commitment to sustainable development by promoting efficient water use, reducing agricultural risk, and strengthening crop resilience. The project contributes directly to climate-smart agriculture, environmental protection, and long-term food security in Morocco.
 
 🚀 How to Run Locally
 pip install -r requirements.txt
 streamlit run app.py
 
-
 🌐 Live Demo
 
-👉 (Streamlit Cloud URL goes here)
-Scan the QR code to access the app on mobile.
-
+👉 (Streamlit Cloud URL here)
+Scan the QR code to access the platform on mobile.
 
 📁 Project Structure
-AgriSense-Morocco/
+AgriSense/
 │── app.py
 │── requirements.txt
 │── README.md
 
-
-📚 References
-
-Pettorelli, N. (2013). The Normalized Difference Vegetation Index. Oxford University Press.
-
-Liakos, K. G., et al. (2018). Machine learning in agriculture. Computers and Electronics in Agriculture.
-
-Lobell, D. B., & Burke, M. B. (2010). Climate change and crop yield models. Agricultural and Forest Meteorology.
-
-
-👤 Author
+👤 Project Lead
 
 Mohamed Amine Jaghouti
 AI & Digital Engineering Student
-Project developed for academic, innovation, and hackathon purposes.
+Founder / Member – GREENLIFE MOROCCO
+Project developed for academic research, innovation programs, and AI-for-impact hackathons.
