@@ -72,7 +72,7 @@ def intro():
     <div style="text-align:center;">
         <h1 style='color:#D97706; font-size:50px;'>🌱 GreenLife Morocco</h1>
         <h3 style='color:#6B8E23;'>AI-powered Sustainable Agriculture Decision Support</h3>
-        <p style='color:#6B8E23; font-size:16px;'>Powered by <b>Mohamed Amine Jaghouti</b> • <a href='mailto:Mohamedaminejaghouti@gmail.com'>Email</a></p>
+        <p style='color:#6B8E23; font-size:16px;'>Powered by <b>GreenLife Team</b> • <a href='mailto:Mohamedaminejaghouti@gmail.com'>Email</a></p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -257,3 +257,4 @@ if st.session_state.page=="intro":
     intro()
 else:
     dashboard()
+
