@@ -25,11 +25,11 @@ st.markdown("""
 if "page" not in st.session_state: st.session_state.page = "intro"
 if "marker" not in st.session_state: st.session_state.marker = {"lat": 35.77, "lon": -5.8}  # Tangier agricultural zone
 if "weather" not in st.session_state: st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
+if "city_name" not in st.session_state: st.session_state.city_name = "Unknown"
 
-API_KEY = "YOUR_OPENWEATHER_API_KEY"  # Replace with your OpenWeather API key
+API_KEY = "01aff74fe8d0fb3777a72ba49c7a3a8f"  # New OpenWeather API key
 
 # ==================== DATA FUNCTIONS ====================
-
 def get_weather(lat, lon, api_key):
     try:
         r = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}", timeout=10)
@@ -132,14 +132,21 @@ def dashboard():
                           margin=dict(l=0,r=0,t=0,b=0), height=420)
     st.plotly_chart(fig_map, use_container_width=True)
 
-    # ---------------- WEATHER ----------------
-    city_name = "Unknown"
+    # ---------------- CITY NAME ----------------
     try:
-        geo = requests.get(f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={API_KEY}", timeout=5).json()
-        if geo: city_name = geo[0]["name"]
-    except: pass
+        geo = requests.get(
+            f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={API_KEY}",
+            timeout=5
+        ).json()
+        if geo and len(geo) > 0:
+            st.session_state.city_name = geo[0].get("name", "Unknown")
+    except:
+        st.session_state.city_name = "Unknown"
 
+    city_name = st.session_state.city_name
     st.markdown(f"### 📌 Selected Area: **{city_name}**")
+
+    # ---------------- WEATHER ----------------
     if st.sidebar.button("🔄 Refresh Weather"):
         temp, humidity, rain = get_weather(lat, lon, API_KEY)
         st.session_state.weather = {"temp": temp, "humidity": humidity, "rain": rain}
@@ -250,4 +257,3 @@ if st.session_state.page=="intro":
     intro()
 else:
     dashboard()
-
