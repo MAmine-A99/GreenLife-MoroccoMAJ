@@ -1,8 +1,8 @@
 streamlit
 pandas
 numpy
+requests
 scikit-learn
 plotly
 reportlab
 qrcode
-requests
