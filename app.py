@@ -10,7 +10,7 @@ from reportlab.pdfgen import canvas
 import qrcode
 
 # ==================== PAGE CONFIG ====================
-st.set_page_config(page_title="GreenLife Morocco", layout="wide", page_icon="🌱")
+st.set_page_config(page_title="GreenLife", layout="wide", page_icon="🌱")
 
 # ==================== GLOBAL STYLE ====================
 st.markdown("""
@@ -250,3 +250,4 @@ if st.session_state.page=="intro":
     intro()
 else:
     dashboard()
+
