@@ -182,32 +182,17 @@ def dashboard():
     if soil_alert: st.warning(soil_alert)
 
     # ---------------- AI CROP RECOMMENDATION ----------------
-    crops=["wheat","olives","tomatoes","citrus","grapes","almonds","vegetables"]
-    irrigation=["low","low","high","medium","medium","low","high"]
 
-    df=pd.DataFrame({
-        "temperature": np.linspace(temp-3, temp+3, len(crops)),
-        "rainfall": np.linspace(max(rain-5,0), rain+5, len(crops)),
-        "ndvi": np.linspace(ndvi-0.05, ndvi+0.05, len(crops)),
-        "soil_ph":[soil_ph]*len(crops),
-        "soil_carbon":[soil_carbon]*len(crops),
-        "soil_clay":[soil_clay]*len(crops),
-        "crop": crops,
-        "irrigation": irrigation
-    })
-
-    X = df[["temperature","rainfall","ndvi","soil_ph","soil_carbon","soil_clay"]]
-    crop_enc = LabelEncoder(); irr_enc = LabelEncoder()
-    y_crop = crop_enc.fit_transform(df["crop"]); y_irr = irr_enc.fit_transform(df["irrigation"])
-    crop_model = RandomForestClassifier(200, random_state=42); irr_model = RandomForestClassifier(200, random_state=42)
-    crop_model.fit(X, y_crop); irr_model.fit(X, y_irr)
-    X_input = pd.DataFrame([[temp,rain,ndvi,soil_ph,soil_carbon,soil_clay]], columns=X.columns)
-    crop_pred = crop_enc.inverse_transform(crop_model.predict(X_input))[0]
-    irr_pred = irr_enc.inverse_transform(irr_model.predict(X_input))[0]
-    probs = crop_model.predict_proba(X_input)[0]
-
-    st.success(f"🌾 Recommended Crop: **{crop_pred.capitalize()}**")
-    st.info(f"💦 Irrigation Level: **{irr_pred.capitalize()}**")
+df = pd.DataFrame({
+    "temperature":[18,22,26,30,24,20,28],
+    "rainfall":[600,400,120,80,300,350,150],
+    "ndvi":[0.75,0.65,0.55,0.45,0.60,0.62,0.50],
+    "soil_ph":[6.5,7.2,6.8,7.5,7.0,6.7,7.3],
+    "soil_carbon":[20,18,15,12,17,19,14],
+    "soil_clay":[30,25,18,15,22,28,20],
+    "crop":["wheat","olives","tomatoes","citrus","grapes","almonds","vegetables"],
+    "irrigation":["low","low","high","medium","medium","low","high"]
+})
 
     # ---------------- ALERTS ----------------
     alert_text=""
@@ -257,5 +242,6 @@ if st.session_state.page=="intro":
     intro()
 else:
     dashboard()
+
 
 
