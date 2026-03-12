@@ -23,16 +23,19 @@ st.markdown("""
 
 # ==================== SESSION STATE ====================
 if "page" not in st.session_state: st.session_state.page = "intro"
-if "marker" not in st.session_state: st.session_state.marker = {"lat": 35.77, "lon": -5.8}  # Tangier agricultural zone
+if "marker" not in st.session_state: st.session_state.marker = {"lat": 35.77, "lon": -5.8}
 if "weather" not in st.session_state: st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
 if "city_name" not in st.session_state: st.session_state.city_name = "Unknown"
 
-API_KEY = "01aff74fe8d0fb3777a72ba49c7a3a8f"  # New OpenWeather API key
+API_KEY = "01aff74fe8d0fb3777a72ba49c7a3a8f"
 
 # ==================== DATA FUNCTIONS ====================
 def get_weather(lat, lon, api_key):
     try:
-        r = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}", timeout=10)
+        r = requests.get(
+            f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}",
+            timeout=10
+        )
         data = r.json()
         temp = data["main"]["temp"]
         humidity = data["main"]["humidity"]
@@ -75,10 +78,8 @@ def intro():
         <p style='color:#6B8E23; font-size:16px;'>Powered by <b>GreenLife Team</b> • <a href='mailto:Mohamedaminejaghouti@gmail.com'>Email</a></p>
     </div>
     """, unsafe_allow_html=True)
-
     st.markdown("---")
     col1, col2 = st.columns([2,1])
-
     with col1:
         st.markdown("### 🚜 About GreenLife Morocco")
         st.write("""
@@ -96,11 +97,9 @@ def intro():
         - Soil Chemistry Analysis
         - Sustainable & Climate-smart Practices
         """)
-
     with col2:
         st.markdown("### 📄 Project Documentation")
         st.markdown("[📘 Download PDF Overview](https://drive.google.com)")
-
     st.markdown("---")
     if st.button("🚀 Launch Dashboard"):
         st.session_state.page = "dashboard"
@@ -111,15 +110,12 @@ def dashboard():
     st.sidebar.title("📍 Select Agricultural Region")
     lat = st.sidebar.number_input("Latitude", 21.0, 36.0, st.session_state.marker["lat"])
     lon = st.sidebar.number_input("Longitude", -17.0, -1.0, st.session_state.marker["lon"])
-
     if st.sidebar.button("Set Region"):
         st.session_state.marker = {"lat": lat, "lon": lon}
         st.session_state.weather = {"temp": 25, "humidity": 50, "rain": 2}
-
     if st.sidebar.button("⬅ Back to Intro"):
         st.session_state.page = "intro"
         st.rerun()
-
     lat, lon = st.session_state.marker["lat"], st.session_state.marker["lon"]
 
     # ---------------- MAP ----------------
@@ -174,7 +170,6 @@ def dashboard():
     s1.metric("Organic Carbon", soil_carbon)
     s2.metric("Clay %", soil_clay)
     s3.metric("pH", soil_ph)
-
     soil_alert=""
     if soil_ph<6: soil_alert+="⚠️ Acidic soil detected. Lime treatment recommended. "
     if soil_ph>8: soil_alert+="⚠️ Alkaline soil detected. "
@@ -182,17 +177,29 @@ def dashboard():
     if soil_alert: st.warning(soil_alert)
 
     # ---------------- AI CROP RECOMMENDATION ----------------
+    df = pd.DataFrame({
+        "temperature":[18,22,26,30,24,20,28],
+        "rainfall":[600,400,120,80,300,350,150],
+        "ndvi":[0.75,0.65,0.55,0.45,0.60,0.62,0.50],
+        "soil_ph":[6.5,7.2,6.8,7.5,7.0,6.7,7.3],
+        "soil_carbon":[20,18,15,12,17,19,14],
+        "soil_clay":[30,25,18,15,22,28,20],
+        "crop":["wheat","olives","tomatoes","citrus","grapes","almonds","vegetables"],
+        "irrigation":["low","low","high","medium","medium","low","high"]
+    })
 
-df = pd.DataFrame({
-    "temperature":[18,22,26,30,24,20,28],
-    "rainfall":[600,400,120,80,300,350,150],
-    "ndvi":[0.75,0.65,0.55,0.45,0.60,0.62,0.50],
-    "soil_ph":[6.5,7.2,6.8,7.5,7.0,6.7,7.3],
-    "soil_carbon":[20,18,15,12,17,19,14],
-    "soil_clay":[30,25,18,15,22,28,20],
-    "crop":["wheat","olives","tomatoes","citrus","grapes","almonds","vegetables"],
-    "irrigation":["low","low","high","medium","medium","low","high"]
-})
+    X = df[["temperature","rainfall","ndvi","soil_ph","soil_carbon","soil_clay"]]
+    crop_enc = LabelEncoder(); irr_enc = LabelEncoder()
+    y_crop = crop_enc.fit_transform(df["crop"]); y_irr = irr_enc.fit_transform(df["irrigation"])
+    crop_model = RandomForestClassifier(200, random_state=42); irr_model = RandomForestClassifier(200, random_state=42)
+    crop_model.fit(X, y_crop); irr_model.fit(X, y_irr)
+    X_input = pd.DataFrame([[temp,rain,ndvi,soil_ph,soil_carbon,soil_clay]], columns=X.columns)
+    crop_pred = crop_enc.inverse_transform(crop_model.predict(X_input))[0]
+    irr_pred = irr_enc.inverse_transform(irr_model.predict(X_input))[0]
+    probs = crop_model.predict_proba(X_input)[0]
+
+    st.success(f"🌾 Recommended Crop: **{crop_pred.capitalize()}**")
+    st.info(f"💦 Irrigation Level: **{irr_pred.capitalize()}**")
 
     # ---------------- ALERTS ----------------
     alert_text=""
@@ -242,6 +249,3 @@ if st.session_state.page=="intro":
     intro()
 else:
     dashboard()
-
-
-
