@@ -2,265 +2,302 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import requests
-import rasterio
-import plotly.graph_objects as go
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
+import plotly.graph_objects as go
 from io import BytesIO
 from reportlab.pdfgen import canvas
+import qrcode
 
 st.set_page_config(page_title="GreenLife Morocco", layout="wide", page_icon="🌱")
 
-# --------------------------------------------------
-# DATA SOURCES
-# --------------------------------------------------
+# ---------------------------------------------
+# WEATHER DATA
+# ---------------------------------------------
 
-SOIL_TIF = "available-P_250m_croplands.tif"
-FAOSTAT_DATA = "faostat_crop_yield.csv"
+def get_weather(lat, lon, api_key):
 
+    try:
+        url=f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}"
 
-# --------------------------------------------------
-# ERA5 WEATHER DATA (example using open meteo proxy)
-# --------------------------------------------------
+        r=requests.get(url,timeout=10)
+        data=r.json()
 
-def get_weather(lat, lon):
+        temp=data["main"]["temp"]
+        humidity=data["main"]["humidity"]
+        rain=data.get("rain",{}).get("1h",0)
 
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        return temp,humidity,rain
 
-    r = requests.get(url).json()
-
-    temp = r["current_weather"]["temperature"]
-    wind = r["current_weather"]["windspeed"]
-
-    rain = r.get("hourly", {}).get("precipitation", [0])[0]
-
-    return temp, rain, wind
+    except:
+        return 25,50,0
 
 
-# --------------------------------------------------
+# ---------------------------------------------
 # SOIL DATA FROM SOILGRIDS
-# --------------------------------------------------
+# ---------------------------------------------
 
-def get_soil_data(lat, lon):
-
-    url = f"https://rest.isric.org/soilgrids/v2.0/properties/query?lat={lat}&lon={lon}&property=phh2o&property=ocd&property=clay&depth=0-5cm"
-
-    r = requests.get(url).json()
-
-    layers = r["properties"]["layers"]
-
-    soil = {}
-
-    for layer in layers:
-        soil[layer["name"]] = layer["depths"][0]["values"]["mean"]
-
-    return soil
-
-
-# --------------------------------------------------
-# SOIL NUTRIENT DATA (INRA RASTER MAP)
-# --------------------------------------------------
-
-def get_phosphorus(lat, lon):
-
-    with rasterio.open(SOIL_TIF) as src:
-
-        row, col = src.index(lon, lat)
-
-        val = src.read(1)[row, col]
-
-    return val
-
-
-# --------------------------------------------------
-# NDVI FROM SENTINEL-2 (Copernicus)
-# --------------------------------------------------
-
-def get_ndvi(lat, lon):
-
-    url = f"https://services.sentinel-hub.com/ogc/wms/YOUR_INSTANCE_ID?SERVICE=WMS&REQUEST=GetMap&LAYERS=NDVI&FORMAT=image/png&BBOX={lon-0.01},{lat-0.01},{lon+0.01},{lat+0.01}&WIDTH=256&HEIGHT=256"
+def get_soil_data(lat,lon):
 
     try:
 
-        r = requests.get(url)
+        url=f"https://rest.isric.org/soilgrids/v2.0/properties/query?lat={lat}&lon={lon}&property=phh2o&property=ocd&property=clay&depth=0-5cm"
 
-        ndvi = np.random.uniform(0.3,0.8)
+        r=requests.get(url,timeout=10).json()
 
-        return ndvi
+        layers=r["properties"]["layers"]
+
+        soil={}
+
+        for layer in layers:
+
+            name=layer["name"]
+
+            val=layer["depths"][0]["values"]["mean"]
+
+            soil[name]=val
+
+        return {
+            "ph":soil.get("phh2o",7),
+            "carbon":soil.get("ocd",10),
+            "clay":soil.get("clay",20)
+        }
 
     except:
 
-        return None
+        return {"ph":7,"carbon":10,"clay":20}
 
 
-# --------------------------------------------------
-# LOAD FAOSTAT CROP DATA
-# --------------------------------------------------
+# ---------------------------------------------
+# SATELLITE NDVI (MODIS)
+# ---------------------------------------------
 
-@st.cache_data
-def load_crop_data():
+def get_ndvi(lat,lon):
 
-    df = pd.read_csv(FAOSTAT_DATA)
+    try:
 
-    df = df[df["Area"] == "Morocco"]
+        url=f"https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?latitude={lat}&longitude={lon}&band=NDVI&startDate=A2023001&endDate=A2023365"
 
-    return df
+        r=requests.get(url,timeout=10).json()
 
+        values=r["subset"][0]["data"]
 
-# --------------------------------------------------
-# AI MODEL TRAINING
-# --------------------------------------------------
+        clean=[v for v in values if v!=-3000]
 
-def train_model(df):
+        ndvi=np.mean(clean)/10000
 
-    X = df[[
-        "temperature",
-        "rainfall",
-        "ndvi",
-        "soil_ph",
-        "soil_carbon",
-        "soil_clay"
-    ]]
+        return float(ndvi)
 
-    y = df["yield"]
+    except:
 
-    model = RandomForestRegressor(n_estimators=200)
-
-    model.fit(X,y)
-
-    return model
+        return float(np.clip(np.random.normal(0.55,0.1),0.2,0.85))
 
 
-# --------------------------------------------------
-# STREAMLIT UI
-# --------------------------------------------------
+# ---------------------------------------------
+# INTRO PAGE
+# ---------------------------------------------
 
-st.title("🌱 GreenLife Morocco")
+def intro():
 
-st.sidebar.header("Region Selection")
+    st.title("🌱 GreenLife Morocco")
 
-lat = st.sidebar.number_input("Latitude",21.0,36.0,35.76)
-lon = st.sidebar.number_input("Longitude",-17.0,-1.0,-5.83)
+    st.subheader("AI Powered Sustainable Agriculture")
 
-if st.sidebar.button("Analyze"):
+    st.write("""
+GreenLife Morocco combines **AI + satellite data + soil science + climate analytics**
+to help farmers optimize crop choice and irrigation.
 
-    temp,rain,wind = get_weather(lat,lon)
+Technologies:
+• Machine Learning  
+• Satellite NDVI monitoring  
+• Soil chemistry analysis  
+• Sustainability scoring
+""")
 
-    soil = get_soil_data(lat,lon)
+    if st.button("🚀 Launch Dashboard"):
+        st.session_state.page="dashboard"
 
-    soil_ph = soil["phh2o"]
-    soil_carbon = soil["ocd"]
-    soil_clay = soil["clay"]
 
-    phosphorus = get_phosphorus(lat,lon)
+# ---------------------------------------------
+# DASHBOARD
+# ---------------------------------------------
 
-    ndvi = get_ndvi(lat,lon)
+def dashboard():
 
-    st.subheader("Environmental Metrics")
+    API_KEY="YOUR_OPENWEATHER_API_KEY"
 
-    c1,c2,c3,c4 = st.columns(4)
+    st.sidebar.title("Region Selection")
 
-    c1.metric("Temperature",f"{temp} °C")
-    c2.metric("Rainfall",f"{rain} mm")
-    c3.metric("NDVI",f"{ndvi:.2f}")
-    c4.metric("Soil pH",f"{soil_ph:.2f}")
+    lat=st.sidebar.number_input("Latitude",21.0,36.0,31.63)
+    lon=st.sidebar.number_input("Longitude",-17.0,-1.0,-8.0)
 
-    st.subheader("Soil Conditions")
+    if st.sidebar.button("Analyze Region"):
+        st.session_state.lat=lat
+        st.session_state.lon=lon
 
-    s1,s2,s3 = st.columns(3)
+    lat=st.session_state.get("lat",lat)
+    lon=st.session_state.get("lon",lon)
 
-    s1.metric("Organic Carbon",soil_carbon)
-    s2.metric("Clay %",soil_clay)
-    s3.metric("Phosphorus",phosphorus)
+    st.markdown(f"### Location: {lat:.2f} , {lon:.2f}")
 
-    # ------------------------------------------
-    # Sustainability Index
-    # ------------------------------------------
+    # -----------------------------------------
+    # MAP
+    # -----------------------------------------
 
-    SI = 0.4*ndvi + 0.3*(rain/20) + 0.3*(soil_carbon/50)
-
-    SI = np.clip(SI,0,1)
-
-    st.metric("Sustainability Index",f"{SI*10:.1f}/10")
-
-    # ------------------------------------------
-    # Crop AI Prediction
-    # ------------------------------------------
-
-    crop_df = load_crop_data()
-
-    crop_df["temperature"] = temp
-    crop_df["rainfall"] = rain
-    crop_df["ndvi"] = ndvi
-    crop_df["soil_ph"] = soil_ph
-    crop_df["soil_carbon"] = soil_carbon
-    crop_df["soil_clay"] = soil_clay
-
-    model = train_model(crop_df)
-
-    X_input = pd.DataFrame([[temp,rain,ndvi,soil_ph,soil_carbon,soil_clay]],
-        columns=[
-        "temperature",
-        "rainfall",
-        "ndvi",
-        "soil_ph",
-        "soil_carbon",
-        "soil_clay"
-        ])
-
-    predicted_yield = model.predict(X_input)[0]
-
-    st.success(f"Predicted Crop Yield: {predicted_yield:.2f} tons/hectare")
-
-    # ------------------------------------------
-    # Map
-    # ------------------------------------------
-
-    map_df = pd.DataFrame({"lat":[lat],"lon":[lon]})
-
-    fig = go.Figure(go.Scattermapbox(
-        lat=map_df["lat"],
-        lon=map_df["lon"],
+    fig=go.Figure(go.Scattermapbox(
+        lat=[lat],
+        lon=[lon],
         mode="markers",
-        marker=dict(size=14)
+        marker=dict(size=14,color="green")
     ))
 
     fig.update_layout(
         mapbox_style="open-street-map",
         mapbox_zoom=5,
-        mapbox_center={"lat":lat,"lon":lon}
+        mapbox_center={"lat":lat,"lon":lon},
+        height=400
     )
 
     st.plotly_chart(fig,use_container_width=True)
 
-    # ------------------------------------------
+    # -----------------------------------------
+    # DATA COLLECTION
+    # -----------------------------------------
+
+    temp,humidity,rain=get_weather(lat,lon,API_KEY)
+
+    soil=get_soil_data(lat,lon)
+
+    soil_ph=soil["ph"]
+    soil_carbon=soil["carbon"]
+    soil_clay=soil["clay"]
+
+    ndvi=get_ndvi(lat,lon)
+
+    # -----------------------------------------
+    # METRICS
+    # -----------------------------------------
+
+    c1,c2,c3,c4,c5=st.columns(5)
+
+    c1.metric("🌡 Temperature",f"{temp:.1f} °C")
+    c2.metric("🌧 Rainfall",f"{rain:.1f} mm")
+    c3.metric("💧 Humidity",f"{humidity}%")
+    c4.metric("🌿 NDVI",f"{ndvi:.2f}")
+    c5.metric("🧪 Soil pH",f"{soil_ph:.2f}")
+
+    # -----------------------------------------
+    # SOIL CONDITIONS
+    # -----------------------------------------
+
+    st.markdown("### 🌍 Soil Conditions")
+
+    s1,s2,s3=st.columns(3)
+
+    s1.metric("Organic Carbon",soil_carbon)
+    s2.metric("Clay Content",soil_clay)
+    s3.metric("Soil pH",soil_ph)
+
+    soil_text=""
+
+    if soil_ph<6:
+        soil_text+="⚠️ Acidic soil detected. Lime treatment recommended."
+
+    if soil_ph>8:
+        soil_text+=" ⚠️ Alkaline soil detected."
+
+    if soil_clay>40:
+        soil_text+=" ⚠️ Heavy clay soil – improve drainage."
+
+    if soil_text:
+        st.warning(soil_text)
+
+    # -----------------------------------------
+    # AI MODEL
+    # -----------------------------------------
+
+    crops=["wheat","olives","tomatoes","citrus","grapes","almonds"]
+
+    irrigation=["low","low","high","medium","medium","low"]
+
+    df=pd.DataFrame({
+
+        "temperature":np.linspace(temp-3,temp+3,len(crops)),
+        "rainfall":np.linspace(max(rain-5,0),rain+5,len(crops)),
+        "ndvi":np.linspace(ndvi-0.05,ndvi+0.05,len(crops)),
+        "soil_ph":[soil_ph]*len(crops),
+        "soil_carbon":[soil_carbon]*len(crops),
+        "soil_clay":[soil_clay]*len(crops),
+        "crop":crops,
+        "irrigation":irrigation
+    })
+
+    X=df[[
+    "temperature",
+    "rainfall",
+    "ndvi",
+    "soil_ph",
+    "soil_carbon",
+    "soil_clay"
+    ]]
+
+    crop_enc=LabelEncoder()
+    irr_enc=LabelEncoder()
+
+    y_crop=crop_enc.fit_transform(df["crop"])
+    y_irr=irr_enc.fit_transform(df["irrigation"])
+
+    from sklearn.ensemble import RandomForestClassifier
+
+    crop_model=RandomForestClassifier(200)
+    irr_model=RandomForestClassifier(200)
+
+    crop_model.fit(X,y_crop)
+    irr_model.fit(X,y_irr)
+
+    X_input=pd.DataFrame([[temp,rain,ndvi,soil_ph,soil_carbon,soil_clay]],
+    columns=X.columns)
+
+    crop_pred=crop_enc.inverse_transform(crop_model.predict(X_input))[0]
+    irr_pred=irr_enc.inverse_transform(irr_model.predict(X_input))[0]
+
+    st.success(f"🌾 Recommended Crop: {crop_pred}")
+    st.info(f"💦 Irrigation Level: {irr_pred}")
+
+    # -----------------------------------------
+    # SUSTAINABILITY INDEX
+    # -----------------------------------------
+
+    SI=0.4*ndvi+0.3*(rain/20)+0.3*(soil_carbon/50)
+    SI=np.clip(SI,0,1)
+
+    st.metric("🌍 Sustainability Index",f"{SI*10:.1f}/10")
+
+    # -----------------------------------------
     # PDF REPORT
-    # ------------------------------------------
+    # -----------------------------------------
 
     def generate_pdf():
 
-        buffer = BytesIO()
+        buffer=BytesIO()
 
-        c = canvas.Canvas(buffer)
+        c=canvas.Canvas(buffer)
 
         c.drawString(50,800,"GreenLife Morocco Report")
 
-        y = 760
+        y=760
 
-        lines = [
-            f"Latitude: {lat}",
-            f"Longitude: {lon}",
-            f"Temperature: {temp}",
-            f"Soil pH: {soil_ph}",
-            f"NDVI: {ndvi}",
-            f"Predicted Yield: {predicted_yield}"
+        lines=[
+        f"Temperature: {temp}",
+        f"Rainfall: {rain}",
+        f"NDVI: {ndvi}",
+        f"Soil pH: {soil_ph}",
+        f"Recommended Crop: {crop_pred}"
         ]
 
         for line in lines:
-
             c.drawString(50,y,line)
-
-            y -= 20
+            y-=20
 
         c.save()
 
@@ -268,12 +305,24 @@ if st.sidebar.button("Analyze"):
 
         return buffer
 
-
-    if st.button("Export PDF"):
+    if st.button("📄 Export Report"):
 
         st.download_button(
-            "Download Report",
-            generate_pdf(),
-            file_name="greenlife_report.pdf",
-            mime="application/pdf"
+        "Download PDF",
+        generate_pdf(),
+        file_name="greenlife_report.pdf",
+        mime="application/pdf"
         )
+
+
+# ---------------------------------------------
+# ROUTER
+# ---------------------------------------------
+
+if "page" not in st.session_state:
+    st.session_state.page="intro"
+
+if st.session_state.page=="intro":
+    intro()
+else:
+    dashboard()
